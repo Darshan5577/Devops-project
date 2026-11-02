@@ -1,0 +1,62 @@
+
+pipeline {
+    agent any
+
+    environment {
+        IMAGE_NAME = 'my-devops-app'
+        CONTAINER_NAME = 'my-container'
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                echo 'Getting source code from GitHub'
+                checkout scm
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                echo 'Building Docker image'
+
+                sh 'docker build -t ${IMAGE_NAME}:${BUILD_NUMBER} .'
+            }
+        }
+
+        stage('Deploy Container') {
+            steps {
+                echo 'Deploying application'
+
+                sh '''
+                    docker rm -f my-container || true
+
+                    docker run -d \
+                    -p 5001:5000 \
+                    --name my-container \
+                    my-devops-app:${BUILD_NUMBER}
+                '''
+            }
+        }
+
+        stage('Test Application') {
+            steps {
+                echo 'Testing application'
+
+                sh '''
+                    for i in 1 2 3 4 5
+                    do
+                        if curl -fsS http://localhost:5001/; then
+                            exit 0
+                        fi
+                        sleep 2
+                    done
+
+                    echo "Application test failed"
+                    docker logs my-container
+                    exit 1
+                '''
+            }
+        }
+    }
+}
