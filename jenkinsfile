@@ -27,19 +27,19 @@ pipeline {
 }
 
         stage('Deploy Container') {
-            steps {
-                echo 'Deploying application'
+    steps {
+        echo 'Deploying application'
 
-                sh '''
-                    docker rm -f my-container || true
+        sh '''
+            /usr/local/bin/docker rm -f my-container || true
 
-                    docker run -d \
-                    -p 5001:5000 \
-                    --name my-container \
-                    my-devops-app:${BUILD_NUMBER}
-                '''
-            }
-        }
+            /usr/local/bin/docker run -d \
+                -p 5001:5000 \
+                --name my-container \
+                my-devops-app:${BUILD_NUMBER}
+        '''
+    }
+}
 
         stage('Test Application') {
             steps {
