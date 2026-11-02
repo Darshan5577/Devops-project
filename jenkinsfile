@@ -17,12 +17,14 @@ pipeline {
         }
 
         stage('Build Docker Image') {
-            steps {
-                echo 'Building Docker image'
-
-                sh '/usr/local/bin/docker build -t my-devops-app:${BUILD_NUMBER} .'
-            }
-        }
+    steps {
+        echo 'Building Docker image'
+        sh '''
+            export PATH="/usr/local/bin:$PATH"
+            docker build -t my-devops-app:${BUILD_NUMBER} .
+        '''
+    }
+}
 
         stage('Deploy Container') {
             steps {
